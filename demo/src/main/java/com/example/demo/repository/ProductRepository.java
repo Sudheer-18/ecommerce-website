@@ -13,8 +13,12 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findBySku(String sku);
     boolean existsBySku(String sku);
+    Optional<Product> findByExternalSourceAndExternalProductId(String externalSource, String externalProductId);
+    boolean existsByExternalSourceAndExternalProductId(String externalSource, String externalProductId);
+    List<Product> findAllByActiveTrueOrderByCreatedAtDesc();
+    List<Product> findAllByOrderByCreatedAtDesc();
 
-    @Query("SELECT p FROM Product p WHERE p.active = true AND (:category IS NULL OR p.category.name = :category) AND (:brand IS NULL OR p.brand = :brand) AND (:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND (:minPrice IS NULL OR p.discountedPrice >= :minPrice) AND (:maxPrice IS NULL OR p.discountedPrice <= :maxPrice)")
+    @Query("SELECT p FROM Product p WHERE p.active = true AND (:category IS NULL OR :category = 'All' OR p.category.name = :category) AND (:brand IS NULL OR p.brand = :brand) AND (:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND (:minPrice IS NULL OR p.discountedPrice >= :minPrice) AND (:maxPrice IS NULL OR p.discountedPrice <= :maxPrice)")
     Page<Product> searchProducts(@Param("category") String category,
                                 @Param("brand") String brand,
                                 @Param("keyword") String keyword,
